@@ -2,6 +2,16 @@ import React, { Component } from 'react';
 
 import { gql } from 'apollo-boost';
 import { Query } from 'react-apollo';
+import { Mutation } from "react-apollo";
+
+const CHANGE_AVAILABILITY = gql`
+  mutation editBook($id: Int!, $available: Boolean!) {
+    editBook(id: $id, available: $available) {
+      id,
+      available
+    }
+  }
+`;
 
 const GET_BOOKS = gql`
   query {
@@ -33,7 +43,21 @@ class BookList extends Component {
               {
                 data.books.map((b) => {
                   return <div key={b.id}>
-                    {`${b.title}: ${b.available ? 'Available' : 'Not Available'}`}
+                    <Mutation mutation={CHANGE_AVAILABILITY}>
+                      {(changeAvailability, { data }) => (
+                        <div>
+                          {`${b.title}: ${b.available ? 'Available' : 'Not Available'}`}
+                          <button onClick = {(e) => {
+                            e.preventDefault();
+                            changeAvailability({
+                              variables: { id: b.id, available: !b.available }
+                            })
+                          }}>
+                            Change Availability
+                          </button>
+                        </div>
+                      )}
+                    </Mutation>
                   </div>
                 })
               }
